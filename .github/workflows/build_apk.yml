@@ -1,42 +1,42 @@
 name: Build SajdahLock APK
 
 on:
-push:
-branches: [ "main", "master" ]
-workflow_dispatch:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
-build:
-runs-on: ubuntu-latest
-timeout-minutes: 10 # Prevents workflows from hanging
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
-steps:
-  - name: Checkout Code
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  - name: Set up Java 17
-    uses: actions/setup-java@v4
-    with:
-      distribution: 'temurin'
-      java-version: '17'
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-  - name: Setup Android SDK
-    uses: android-actions/setup-android@v3
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.5'
 
-  - name: Accept Android SDK Licenses
-    run: yes | sdkmanager --licenses || true
+      - name: Bootstrap Gradle Wrapper
+        run: |
+          gradle wrapper
 
-  - name: Generate Gradle Wrapper
-    run: |
-      gradle wrapper --gradle-version 8.5
-      chmod +x gradlew
+      - name: Build Debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
 
-  - name: Build Debug APK
-    run: ./gradlew assembleDebug --no-daemon --stacktrace
-
-  - name: Upload APK to Artifacts
-    uses: actions/upload-artifact@v4
-    with:
-      name: SajdahLock-APK
-      path: app/build/outputs/apk/debug/app-debug.apk
-      retention-days: 14
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SajdahLock-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
