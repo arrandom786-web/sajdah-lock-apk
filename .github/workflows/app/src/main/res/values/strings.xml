@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SajdahLock</string>
+    <string name="accessibility_desc">Monitors foreground applications and enforces prayer time lockouts.</string>
+</resources>
