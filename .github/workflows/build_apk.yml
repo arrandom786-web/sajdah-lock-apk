@@ -2,7 +2,9 @@ name: Build SajdahLock APK
 
 on:
 push:
-branches: [ "main", "master" ]
+branches:
+- main
+- master
 workflow_dispatch:
 
 jobs:
@@ -19,25 +21,20 @@ steps:
     with:
       distribution: 'temurin'
       java-version: '17'
-      cache: 'gradle'
+
+  - name: Setup Gradle
+    uses: gradle/actions/setup-gradle@v3
+    with:
+      gradle-version: '8.5'
 
   - name: Generate Gradle Wrapper
-    run: |
-      # Use standard gradle wrapper creation without external network hooks
-      mvn -version 2>/dev/null || true
-      gradle wrapper --gradle-version 8.5 || gradle wrapper
+    run: gradle wrapper --gradle-version 8.5
 
-  - name: Make Gradlew Executable
+  - name: Grant Execute Permission to Gradlew
     run: chmod +x gradlew
 
-  - name: Build APK (with automatic retry on network lag)
-    run: |
-      # The options prevent 504 gateway drops by increasing network timeout & retries
-      ./gradlew assembleDebug \
-        --stacktrace \
-        --no-daemon \
-        -Dorg.gradle.internal.http.socketTimeout=60000 \
-        -Dorg.gradle.internal.http.connectionTimeout=60000
+  - name: Build Debug APK
+    run: ./gradlew assembleDebug --no-daemon --stacktrace
 
   - name: Upload Debug APK
     uses: actions/upload-artifact@v4
