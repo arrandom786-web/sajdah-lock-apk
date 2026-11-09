@@ -1,11 +1,6 @@
 name: Build SajdahLock APK
 
-on:
-push:
-branches:
-- main
-- master
-workflow_dispatch:
+on: [push, workflow_dispatch]
 
 jobs:
 build:
